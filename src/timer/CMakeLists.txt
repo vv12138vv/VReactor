@@ -1,3 +1,4 @@
-set(TIMER_SRC ${CMAKE_CURRENT_LIST_DIR}/time_stamp.cpp)
+set(TIMER_SRC timer.cpp
+        timer_manager.cpp)
 
 add_library(TIMER ${TIMER_SRC})
