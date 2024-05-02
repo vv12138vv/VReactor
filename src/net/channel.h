@@ -14,7 +14,6 @@ public:
     using EventCallBack = std::function<void()>;
     using ReadEventCallBack = std::function<void(TimePoint)>;
     enum Event { NoneEvent = 0, ReadEvent = EPOLLIN | EPOLLPRI, WriteEvent = EPOLLOUT };
-
 private:
     const int fd_;              //监听的fd
     EventLoop& loop_;           //所属的事件循环
@@ -50,7 +49,7 @@ public:
     //一些为了封装性的函数
     int get_fd() const { return fd_; }
     int get_event() const { return events_; }
-    void set_real_event(Event real_event) { real_events_ = real_event; }
+    void set_real_event(int real_event) { real_events_ = real_event; }
     int get_idx() const { return idx_; }
     void set_idx(int idx) { idx_ = idx; }
 
