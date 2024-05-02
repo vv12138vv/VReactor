@@ -7,7 +7,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
 include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/src/memory
-        ${CMAKE_CURRENT_LIST_DIR}/src/timer)
+        ${CMAKE_CURRENT_LIST_DIR}/src/timer
+        ${CMAKE_CURRENT_LIST_DIR}/src/net
+        ${CMAKE_CURRENT_LIST_DIR}/src/net/poller)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/memory)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/timer)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/net)
