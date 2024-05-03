@@ -15,6 +15,7 @@ private:
     SmallBuffer buffer_;
 
 public:
+    LogStream()=default;
     LogStream(const LogStream& that) = delete;
     LogStream& operator=(const LogStream& that) = delete;
     void append(const char* p, int len) { buffer_.append(p, len); }
