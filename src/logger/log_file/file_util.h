@@ -4,12 +4,14 @@
 #include<stdio.h>
 #include<string>
 #include<assert.h>
-class FileUtil {
 
+//不保证线程安全性
+class FileUtil {
 private:
     FILE* file_;
     char buffer_[64*1024];
     off_t write_offset_;
+    //写入文件
     size_t write(const char* data,size_t len);
 public:
     explicit FileUtil(const std::string& file_name);
