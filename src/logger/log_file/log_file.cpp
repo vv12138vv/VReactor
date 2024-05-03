@@ -6,7 +6,7 @@
 #include <mutex>
 
 
-LogFile::LogFile(const std::string& base_name, off_t roll_size, bool thread_safe, int flush_interval, int write_limit)
+LogFile::LogFile(const std::string& base_name, off_t roll_size, int flush_interval, int write_limit,bool thread_safe)
     : base_name_(base_name)
     , roll_size_(roll_size)
     , flush_interval_(flush_interval)

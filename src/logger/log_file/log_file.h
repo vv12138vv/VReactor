@@ -26,7 +26,7 @@ private:
 
     void append_unlocked(const char* log,size_t len);
 public:
-    LogFile(const std::string& base_name, off_t roll_size, bool thread_safe = true, int flush_interval = 3, int write_limit = 1024);
+    LogFile(const std::string& base_name, off_t roll_size, int flush_interval = 3, int write_limit = 1024, bool thread_safe = true);
     void append(const char* log, size_t len);
     void flush();
     bool roll_file();

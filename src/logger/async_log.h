@@ -19,12 +19,14 @@ public:
 
 
 private:
-    const int flush_intervals_;      //前端缓冲区向后端的写入时间
+    const std::string base_name_;
+    const int flush_interval_;      //前端缓冲区向后端的写入时间
+    const off_t roll_size_;
     std::atomic<bool> is_running_;   //标识线程函数是否running
-    std::mutex mtx_;                 //
+    std::mutex mtx_;
     std::condition_variable cdv_;
-    Thread thread_;           //后端线程
-    
+    Thread thread_;   //后端线程
+
     BufferPtr cur_buffer_;    //当前缓冲区
     BufferPtr next_buffer_;   //空闲缓冲区
     BufferList buffers_;      //已满队列缓冲
@@ -33,6 +35,7 @@ private:
     void thread_func();
 
 public:
+    AsyncLog(const std::string& base_name,off_t roll_size,int flush_interval=3);
     ~AsyncLog();
     void append(const char* log, size_t len);
     void start();

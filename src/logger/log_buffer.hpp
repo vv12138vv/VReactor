@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <strings.h>
 
 
 
@@ -30,6 +31,7 @@ public:
     const char* data() const { return data; }
     size_t size() const { return static_cast<size_t>(cur_ - data_); }
     char* cur() { return cur_; }
+    void bzero() { bzero(data_, sizeof(data_)); }
     //返回剩余空间
     size_t available() const { return static_cast<size_t>(end() - cur_); }
 };

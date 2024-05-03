@@ -25,8 +25,11 @@ private:
     void set_name();
 
 public:
-    explicit Thread(const ThreadFunc& func, const std::string& name);
+    Thread()=default;
+    explicit Thread(const ThreadFunc& func, const std::string& name = "");
     ~Thread();
+    Thread(const Thread& that) = delete;
+    Thread& operator=(const Thread& that) = delete;
     void start();
     void join();
     bool joinable() const;
