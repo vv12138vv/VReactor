@@ -9,8 +9,10 @@ include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/src/memory
         ${CMAKE_CURRENT_LIST_DIR}/src/timer
         ${CMAKE_CURRENT_LIST_DIR}/src/net
-        ${CMAKE_CURRENT_LIST_DIR}/src/net/poller)
+        ${CMAKE_CURRENT_LIST_DIR}/src/net/poller
+        ${CMAKE_CURRENT_LIST_DIR}/src/logger)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/memory)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/timer)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/net)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/logger)

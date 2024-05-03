@@ -10,8 +10,8 @@ class EventLoop;
 
 class Poller {
 public:
-    using ChannelList = std::vector<std::shared_ptr<Channel>>;
-    using ChannelMap = std::unordered_map<int, std::shared_ptr<Channel>>;
+    using ChannelList = std::vector<Channel*>;
+    using ChannelMap = std::unordered_map<int, Channel*>;
 
 private:
     EventLoop& loop_;
@@ -25,8 +25,8 @@ public:
     Poller(const Poller& that) = delete;
     Poller& operator=(const Poller& that) = delete;
     virtual TimePoint poll(int timeout_ms,ChannelList& active_channels) = 0;
-    virtual void update_channel(std::shared_ptr<Channel> channel) = 0;
-    virtual void remove_channel(std::shared_ptr<Channel> channel) = 0;
-    bool has_channel(std::shared_ptr<Channel> channel) const;
+    virtual void update_channel(Channel* channel) = 0;
+    virtual void remove_channel(Channel* channel) = 0;
+    bool has_channel(Channel* channel) const;
 };
 #endif
