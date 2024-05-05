@@ -1,6 +1,6 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
-
+#include "time_stamp.h"
 #include "timer.h"
 #include <algorithm>
 #include <functional>
@@ -9,18 +9,20 @@
 
 class EventLoop;
 
+//Channel是对一个fd的抽象，包括设置监听事件，回调函数
 class Channel {
 public:
     using EventCallBack = std::function<void()>;
     using ReadEventCallBack = std::function<void(TimePoint)>;
     enum Event { NoneEvent = 0, ReadEvent = EPOLLIN | EPOLLPRI, WriteEvent = EPOLLOUT };
+
 private:
     const int fd_;              //监听的fd
     EventLoop& loop_;           //所属的事件循环
     int events_;                //注册的感兴趣事件
     int real_events_;           // pool返回的实际发生的事件
     int idx_;                   //注册的idx
-    bool tied_;                 //是否调用过tie
+    bool tied_;                 //是否绑定connection
     std::weak_ptr<void> tie_;   //指向对应的Connection
 
     //一些回调函数
@@ -36,6 +38,7 @@ private:
 
 public:
     Channel(EventLoop& loop, int fd);
+    Channel()=delete;
     ~Channel();
     Channel& operator=(const Channel& that) = delete;
     Channel(const Channel& that) = delete;

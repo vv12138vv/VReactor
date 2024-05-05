@@ -20,6 +20,7 @@ private:
     ThreadFunc func_;
     std::string name_;
     static std::atomic<int> count_;   //创建的线程数
+    //用于同步等待线程创建完毕
     std::mutex mtx_;
     std::condition_variable cdv_;
 

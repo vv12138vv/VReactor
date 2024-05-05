@@ -2,6 +2,7 @@
 #define LOG_STREAM_H
 
 #include "log_buffer.hpp"
+#include <cassert>
 
 const size_t kSmallBufferSize = 4000;
 const size_t kLargeBufferSize = 4000 * 1000;
@@ -29,7 +30,9 @@ public:
 private:
     StreamBuffer buffer_;
     //添加到流
-    void append(const char* p, int len) { buffer_.append(p, len); }
+    void append(const char* p, int len) { 
+        assert(len<buffer_.available());
+        buffer_.append(p, len); }
 
 public:
     LogStream() = default;

@@ -2,14 +2,15 @@
 #define EPOLLER_H
 
 #include "channel.h"
+#include "logger.h"
 #include "poller.h"
 #include "sys/epoll.h"
 #include "timer.h"
+#include <assert.h>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <unistd.h>
-#include<assert.h>
 
 class Epoller : public Poller {
 public:

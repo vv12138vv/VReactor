@@ -1,18 +1,15 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "time_stamp.h"
 #include <chrono>
 #include <functional>
 
-using BaseClock = std::chrono::system_clock;
-using Us = std::chrono::microseconds;
-using Duration = std::chrono::duration<size_t, std::micro>;
-using TimePoint = std::chrono::time_point<BaseClock, Duration>;
+
 
 class Timer {
 public:
     using CallBack = std::function<void()>;
-
 private:
     const CallBack callback_;   //回调函数
     const bool repeatable_;     //是否是可重复的定时器

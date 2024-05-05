@@ -1,6 +1,6 @@
 #include "channel.h"
-#include <memory>
-#include <sys/epoll.h>
+#include "time_stamp.h"
+
 
 
 Channel::Channel(EventLoop& loop, int fd)
@@ -21,19 +21,18 @@ void Channel::tie(const std::shared_ptr<void>& obj) {
 }
 
 
-void Channel::handle_event(Timer::TimePoint receive_time) {
-    if (!tied_) {
-        handle_event_with_guard(receive_time);
-        return;
-    }
-    //用于放置误删connection
-    std::shared_ptr<void> guard = tie_.lock();
-    if (guard) {
+void Channel::handle_event(TimePoint receive_time) {
+    if (tied_) {
+        auto guard = tie_.lock();
+        if (guard) {
+            handle_event_with_guard(receive_time);
+        }
+    } else {
         handle_event_with_guard(receive_time);
     }
 }
 
-void Channel::handle_event_with_guard(Timer::TimePoint receive_time) {
+void Channel::handle_event_with_guard(TimePoint receive_time) {
     //对端关闭连接事件
     if ((real_events_ & EPOLLHUP) && !(real_events_ & EPOLLIN)) {
         if (close_call_back_) {
