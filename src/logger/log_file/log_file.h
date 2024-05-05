@@ -7,6 +7,7 @@
 #include <mutex>
 #include <string>
 
+//日志文件
 class LogFile {
 private:
     const std::string base_name_;   //基础文件名
@@ -23,7 +24,7 @@ private:
     static const int kRollPerSec = 60 * 60 * 24;
 
     static std::string next_log_file_name(const std::string& base_name, time_t* now);
-
+    //写入，是否加锁由append决定
     void append_unlocked(const char* log,size_t len);
 public:
     LogFile(const std::string& base_name, off_t roll_size, int flush_interval = 3, int write_limit = 1024, bool thread_safe = true);

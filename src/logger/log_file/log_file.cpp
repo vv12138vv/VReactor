@@ -1,12 +1,13 @@
 #include "log_file.h"
 #include "log_file/file_util.h"
+#include <bits/types/FILE.h>
 #include <cassert>
 #include <ctime>
 #include <memory>
 #include <mutex>
 
 
-LogFile::LogFile(const std::string& base_name, off_t roll_size, int flush_interval, int write_limit,bool thread_safe)
+LogFile::LogFile(const std::string& base_name, off_t roll_size, int flush_interval, int write_limit, bool thread_safe)
     : base_name_(base_name)
     , roll_size_(roll_size)
     , flush_interval_(flush_interval)
@@ -25,7 +26,7 @@ LogFile::LogFile(const std::string& base_name, off_t roll_size, int flush_interv
 bool LogFile::roll_file() {
     time_t now = 0;
     auto file_name = next_log_file_name(base_name_, &now);
-    time_t start = now / kRollPerSec * kRollPerSec;//计算现在所处的滚动周期数
+    time_t start = now / kRollPerSec * kRollPerSec;   //计算现在所处的滚动周期数
     if (now > last_roll_) {
         last_roll_ = now;
         last_flush_ = now;
@@ -55,32 +56,37 @@ std::string LogFile::next_log_file_name(const std::string& base_name, time_t* no
 }
 
 void LogFile::flush() {
-    file_->flush();
+    if (mtx_ != nullptr) {
+        std::lock_guard<std::mutex> locker(*mtx_);
+        file_->flush();
+    } else {
+        file_->flush();
+    }
 }
 
-void LogFile::append(const char *log, size_t len){
-    if(mtx_!=nullptr){
+void LogFile::append(const char* log, size_t len) {
+    if (mtx_ != nullptr) {
         std::lock_guard<std::mutex> locker(*mtx_);
         append_unlocked(log, len);
-    }else{
+    } else {
         append_unlocked(log, len);
     }
 }
 
-void LogFile::append_unlocked(const char* log,size_t len){
+void LogFile::append_unlocked(const char* log, size_t len) {
     file_->append(log, len);
-    if(file_->get_offset()>roll_size_){//判断是否需要滚动
+    if (file_->get_offset() > roll_size_) {   //判断是否需要滚动
         roll_file();
-    }else{
-        write_count_+=1;
-        if(write_count_>=write_limit_){
-            write_count_=0;
-            time_t now=time(nullptr);
-            time_t period=now/kRollPerSec*kRollPerSec;
-            if(period!=start_of_period_){
+    } else {
+        write_count_ += 1;
+        if (write_count_ >= write_limit_) {
+            write_count_ = 0;
+            time_t now = time(nullptr);
+            time_t period = now / kRollPerSec * kRollPerSec;
+            if (period != start_of_period_) {
                 roll_file();
-            }else if(now-last_flush_>flush_interval_){
-                last_flush_=now;
+            } else if (now - last_flush_ > flush_interval_) {
+                last_flush_ = now;
                 file_->flush();
             }
         }

@@ -10,13 +10,13 @@
 #include <mutex>
 #include <thread>
 #include <vector>
+
 //异步日志后端
 class AsyncLog {
 public:
     using LargeBuffer = LogBuffer<kLargeBufferSize>;
     using BufferList = std::vector<std::unique_ptr<LargeBuffer>>;
     using BufferPtr = std::unique_ptr<LargeBuffer>;
-
 
 private:
     const std::string base_name_;
@@ -29,10 +29,10 @@ private:
 
     BufferPtr cur_buffer_;    //当前缓冲区
     BufferPtr next_buffer_;   //空闲缓冲区
-    BufferList buffers_;      //已满队列缓冲
+    BufferList full_buffers_;      //已满的缓冲区
 
 
-    void thread_func();
+    void thread_write_func();
 
 public:
     AsyncLog(const std::string& base_name,off_t roll_size,int flush_interval=3);

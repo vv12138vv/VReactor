@@ -1,25 +1,33 @@
 #include "async_log.h"
 #include "log_file/log_file.h"
-#include <cassert>
-#include <chrono>
+#include <functional>
 #include <memory>
-#include <mutex>
 
 AsyncLog::AsyncLog(const std::string& base_name, off_t roll_size, int flush_interval)
     : base_name_(base_name)
     , roll_size_(roll_size)
-    , flush_interval_(flush_interval) {}
+    , flush_interval_(flush_interval)
+    , thread_(std::bind(&AsyncLog::thread_write_func, this), "LogThread")
+    , cur_buffer_(new LargeBuffer)
+    , next_buffer_(new LargeBuffer) {}
 
-
+//控制后端写文件线程
 void AsyncLog::start() {
     is_running_ = true;
+    thread_.start();
 }
 
 void AsyncLog::stop() {
     is_running_ = false;
     cdv_.notify_one();
+    thread_.join();
 }
 
+AsyncLog::~AsyncLog() {
+    if (is_running_) {
+        stop();
+    }
+}
 
 // append可能被多个前端线程调用，需要考虑线程安全。
 void AsyncLog::append(const char* log, size_t len) {
@@ -27,7 +35,7 @@ void AsyncLog::append(const char* log, size_t len) {
     if (cur_buffer_->available() > len) {   //当前缓冲区大小足够
         cur_buffer_->append(log, len);
     } else {   //当前缓冲区大小不够
-        buffers_.push_back(std::move(cur_buffer_));
+        full_buffers_.push_back(std::move(cur_buffer_));
         if (next_buffer_ != nullptr) {
             cur_buffer_ = std::move(next_buffer_);
         } else {
@@ -42,25 +50,25 @@ void AsyncLog::append(const char* log, size_t len) {
 
 
 
-void AsyncLog::thread_func() {
+void AsyncLog::thread_write_func() {
     assert(is_running_ == true);
     LogFile output(base_name_, roll_size_, flush_interval_);
     auto new_buffer1 = std::make_unique<LargeBuffer>();
     auto new_buffer2 = std::make_unique<LargeBuffer>();
-    new_buffer1->bzero();
-    new_buffer2->bzero();
+    new_buffer1->set_zero();
+    new_buffer2->set_zero();
     //缓冲区数组16格，用于与前端缓冲区进行交换
-    BufferList buffers_for_write;   //待写缓冲队列
+    BufferList buffers_for_write;   //待写缓冲队列,给前端使用，防止后端写时前端无法写数据
     buffers_for_write.reserve(16);
     while (is_running_) {
         {
             std::unique_lock<std::mutex> locker(mtx_);
-            if (buffers_.empty()) {
+            if (full_buffers_.empty()) {
                 cdv_.wait_for(locker, std::chrono::seconds(flush_interval_));
             }
-            buffers_.push_back(std::move(cur_buffer_));
+            full_buffers_.push_back(std::move(cur_buffer_));
             cur_buffer_ = std::move(new_buffer1);
-            buffers_for_write.swap(buffers_);
+            buffers_for_write.swap(full_buffers_);   //将前后的缓存区们交换
             if (!next_buffer_) {
                 next_buffer_ = std::move(new_buffer2);
             }

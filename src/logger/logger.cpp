@@ -39,12 +39,13 @@ Logger::Impl::Impl(const std::string& file_name, int line, int save_errno, Logge
     : base_name_(simplify_file_name(file_name))
     , time_(std::chrono::time_point_cast<Duration>(BaseClock::now()))
     , line_(line) {
-    format_time();
-    stream_ << level_str[log_level()] << ' ';
+    add_time_stamp();
+    stream_ << level_str[level];
+    add_file_stamp();
 }
 
 
-void Logger::Impl::format_time() {
+void Logger::Impl::add_time_stamp() {
     TimePoint now = std::chrono::time_point_cast<Duration>(BaseClock::now());
     time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
     int us_per_s = 1000 * 1000;   // 1s=1000000us
@@ -67,8 +68,8 @@ void Logger::Impl::format_time() {
     stream_ << ' ';
 }
 
-void Logger::Impl::finish() {
-    stream_ << " [" << base_name_ << ":" << std::to_string(line_) << "]\n";
+void Logger::Impl::add_file_stamp() {
+    stream_ << " [" << base_name_ << ":" << std::to_string(line_) <<"]  ";
 }
 
 
@@ -77,7 +78,7 @@ Logger::Logger(const std::string& file_name, int line, Logger::Level level)
 
 
 Logger::~Logger() {
-    impl_->finish();
+    impl_->stream_<<'\n';
     const auto& buff(stream().buffer());
     g_output_(buff.data(), buff.size());
     if (impl_->level_ == Level::Fatal) {

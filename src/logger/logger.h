@@ -38,8 +38,8 @@ private:
 
         // Impl(Logger::Level level, int save_errno, const std::string& file_name, int line);
         Impl(const std::string& file_name, int line, int save_errno, Logger::Level level);
-        void format_time();
-        void finish();
+        void add_time_stamp();
+        void add_file_stamp();
     };
 
     // unique_ptr指向内部实现类

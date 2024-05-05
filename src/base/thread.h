@@ -25,7 +25,7 @@ private:
     void set_name();
 
 public:
-    Thread()=default;
+    Thread()=delete;
     explicit Thread(const ThreadFunc& func, const std::string& name = "");
     ~Thread();
     Thread(const Thread& that) = delete;

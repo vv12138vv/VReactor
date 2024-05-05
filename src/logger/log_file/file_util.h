@@ -5,7 +5,7 @@
 #include<string>
 #include<assert.h>
 
-//不保证线程安全性
+//不保证线程安全性,对文件操作的抽象
 class FileUtil {
 private:
     FILE* file_;
