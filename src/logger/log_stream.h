@@ -25,21 +25,22 @@ public:
 class LogStream {
 public:
     using StreamBuffer = LogBuffer<kSmallBufferSize>;
+
 private:
     StreamBuffer buffer_;
+    //添加到流
+    void append(const char* p, int len) { buffer_.append(p, len); }
+
 public:
     LogStream() = default;
     LogStream(const LogStream& that) = delete;
     LogStream& operator=(const LogStream& that) = delete;
-    void append(const char* p, int len) { buffer_.append(p, len); }
+
     const StreamBuffer& buffer() const { return buffer_; }
     void reset_buffer() { buffer_.reset(); }
-
     //以下是一些<<的重载
     LogStream& operator<<(const std::string& str);
-
     LogStream& operator<<(const char* str);
-
     LogStream& operator<<(const LogTemplate& log_template);
     LogStream& operator<<(char ch);
 };

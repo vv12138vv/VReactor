@@ -22,19 +22,19 @@ public:
 
 private:
     static std::string simplify_file_name(const std::string& file_name);
-    //内部实现类
+    //内部实现类，负责组装日志信息
     class Impl {
     public:
+        //所在文件的最后一段文件名
+        std::string base_name_;
         //时间戳
         TimePoint time_;
+        //日志输出所在行
+        int line_;
         //日志流
         LogStream stream_;
         //日志等级
         Logger::Level level_;
-        //日志输出所在行
-        int line_;
-        //所在文件的最后一段文件名
-        std::string base_name_;
 
         // Impl(Logger::Level level, int save_errno, const std::string& file_name, int line);
         Impl(const std::string& file_name, int line, int save_errno, Logger::Level level);

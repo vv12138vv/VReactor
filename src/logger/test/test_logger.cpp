@@ -17,14 +17,19 @@ AsyncLog* p=nullptr;
 
 
 void async_output(const char* msg,size_t len){
-    if(p!=nullptr){
-        p->append(msg, len);
-    }
+    assert(p!=nullptr);
+    p->append(msg, len);
+}
+void async_flush(){
+    assert(p!=nullptr);
 }
 
 void test_async_logger(){
-    for(int i=0;i<10000000;i+=1){
+    for(int i=0;i<1000000;i+=1){
         LOG_INFO<<"logger:"<<std::to_string(i);
+        if(i==999999){
+            LOG_INFO<<"END";
+        }
     }
 }
 
@@ -34,7 +39,5 @@ int main(int argc,char* argv[]){
     Logger::set_output(async_output);
     async_logger.start();
     test_async_logger();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    async_logger.stop();
-    // return 0;
+    return 0;
 }

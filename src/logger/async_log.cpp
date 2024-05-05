@@ -1,7 +1,6 @@
 #include "async_log.h"
 #include "log_file/log_file.h"
-#include <functional>
-#include <memory>
+
 
 AsyncLog::AsyncLog(const std::string& base_name, off_t roll_size, int flush_interval)
     : base_name_(base_name)
@@ -9,7 +8,8 @@ AsyncLog::AsyncLog(const std::string& base_name, off_t roll_size, int flush_inte
     , flush_interval_(flush_interval)
     , thread_(std::bind(&AsyncLog::thread_write_func, this), "LogThread")
     , cur_buffer_(new LargeBuffer)
-    , next_buffer_(new LargeBuffer) {}
+    , next_buffer_(new LargeBuffer)
+    , is_running_(false) {}
 
 //控制后端写文件线程
 void AsyncLog::start() {
@@ -19,7 +19,7 @@ void AsyncLog::start() {
 
 void AsyncLog::stop() {
     is_running_ = false;
-    cdv_.notify_one();
+    cdv_.notify_all();
     thread_.join();
 }
 

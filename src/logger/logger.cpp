@@ -1,14 +1,7 @@
 #include "logger.h"
 #include "log_stream.h"
-#include "timer.h"
-#include <chrono>
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <memory>
-#include <string>
 
+//给每个调用的线程初始化一些信息
 namespace ThreadInfo {
 thread_local char t_errnobuf[512];
 thread_local char t_time[64];
@@ -25,7 +18,7 @@ const std::vector<std::string> level_str{
     "FATAL",
 };
 
-
+//化简文件名
 std::string Logger::simplify_file_name(const std::string& file_name) {
     size_t last = file_name.rfind('/');
     if (last == std::string::npos) {
@@ -38,13 +31,15 @@ std::string Logger::simplify_file_name(const std::string& file_name) {
 Logger::Impl::Impl(const std::string& file_name, int line, int save_errno, Logger::Level level)
     : base_name_(simplify_file_name(file_name))
     , time_(std::chrono::time_point_cast<Duration>(BaseClock::now()))
-    , line_(line) {
+    , line_(line)
+    , stream_()
+    , level_(level) {
     add_time_stamp();
-    stream_ << level_str[level];
+    stream_ << level_str[level_];
     add_file_stamp();
 }
 
-
+//添加时间戳
 void Logger::Impl::add_time_stamp() {
     TimePoint now = std::chrono::time_point_cast<Duration>(BaseClock::now());
     time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
@@ -67,9 +62,9 @@ void Logger::Impl::add_time_stamp() {
     stream_ << LogTemplate(ThreadInfo::t_time, strlen(time_format)) << LogTemplate(buf, strlen(buf));
     stream_ << ' ';
 }
-
+//添加文件戳
 void Logger::Impl::add_file_stamp() {
-    stream_ << " [" << base_name_ << ":" << std::to_string(line_) <<"]  ";
+    stream_ << " [" << base_name_ << ":" << std::to_string(line_) << "]  ";
 }
 
 
@@ -78,7 +73,8 @@ Logger::Logger(const std::string& file_name, int line, Logger::Level level)
 
 
 Logger::~Logger() {
-    impl_->stream_<<'\n';
+    impl_->stream_ << '\n';
+    //输出文件流，具体输出方式由goutput确定
     const auto& buff(stream().buffer());
     g_output_(buff.data(), buff.size());
     if (impl_->level_ == Level::Fatal) {
@@ -91,17 +87,19 @@ const char* get_err_msg(int save_errno) {
     return strerror_r(save_errno, ThreadInfo::t_errnobuf, sizeof(ThreadInfo::t_errnobuf));
 }
 
+//默认输出到标准输出
 void Logger::default_output(const char* data, size_t len) {
     fwrite(data, len, sizeof(char), stdout);
 }
-
+//默认刷新标准输出
 void Logger::default_flush() {
     fflush(stdout);
 }
-
+//设置输出
 void Logger::set_output(OutputFunc output_func) {
     g_output_ = output_func;
 }
+//设置刷新
 void Logger::set_flush(FlushFunc flush_func) {
     g_flush_ = flush_func;
 }
@@ -118,4 +116,3 @@ void Logger::set_log_level(Logger::Level level) {
 Logger::Level Logger::log_level() {
     return g_level;
 }
-

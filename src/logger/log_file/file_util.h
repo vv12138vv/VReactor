@@ -9,7 +9,7 @@
 class FileUtil {
 private:
     FILE* file_;
-    char buffer_[64*1024];
+    char buffer_[64*1024];//65KB的缓存
     off_t write_offset_;
     //写入文件
     size_t write(const char* data,size_t len);
