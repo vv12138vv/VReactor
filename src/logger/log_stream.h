@@ -3,9 +3,25 @@
 
 #include "log_buffer.hpp"
 
-
 const size_t kSmallBufferSize = 4000;
 const size_t kLargeBufferSize = 4000 * 1000;
+
+
+class LogTemplate {
+
+public:
+    const char* data_;
+    size_t len_;
+    LogTemplate()
+        : data_(nullptr)
+        , len_(0) {}
+    LogTemplate(const char* data, size_t len)
+        : data_(data)
+        , len_(len) {}
+    LogTemplate(const LogTemplate&) = delete;
+    LogTemplate& operator=(const LogTemplate&) = delete;
+};
+
 
 class LogStream {
 public:
@@ -15,20 +31,22 @@ private:
     SmallBuffer buffer_;
 
 public:
-    LogStream()=default;
+    LogStream() = default;
     LogStream(const LogStream& that) = delete;
     LogStream& operator=(const LogStream& that) = delete;
     void append(const char* p, int len) { buffer_.append(p, len); }
     const SmallBuffer& buffer() const { return buffer_; }
-    void reset_buffer(){
-        buffer_.reset();
-    }
+    void reset_buffer() { buffer_.reset(); }
 
     //以下是一些<<的重载
     LogStream& operator<<(const std::string& str);
 
     LogStream& operator<<(const char* str);
+
+    LogStream& operator<<(const LogTemplate& log_template);
 };
+
+
 
 
 #endif

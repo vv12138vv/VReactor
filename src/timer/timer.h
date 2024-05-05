@@ -8,10 +8,10 @@ using BaseClock = std::chrono::steady_clock;
 using Us = std::chrono::microseconds;
 using Duration = std::chrono::duration<size_t, std::micro>;
 using TimePoint = std::chrono::time_point<BaseClock, Duration>;
-using CallBack = std::function<void()>;
 
 class Timer {
 public:
+    using CallBack = std::function<void()>;
 
 private:
     const CallBack callback_;   //回调函数

@@ -28,7 +28,7 @@ public:
         }
     }
     void reset() { cur_ = data_; }
-    const char* data() const { return data; }
+    const char* data() const { return data_; }
     size_t size() const { return static_cast<size_t>(cur_ - data_); }
     char* cur() { return cur_; }
     void bzero() { bzero(data_, sizeof(data_)); }

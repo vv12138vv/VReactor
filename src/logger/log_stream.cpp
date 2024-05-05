@@ -15,3 +15,8 @@ LogStream& LogStream::operator<<(const char* str){
     }
     return *this;
 }
+
+LogStream& LogStream::operator<<(const LogTemplate& log_template){
+    buffer_.append(log_template.data_,log_template.len_);
+    return *this;
+}

@@ -173,7 +173,7 @@ void MemoryPool::reset_pool() {
 #ifdef __linux__
             free(large_block->data_);
 #elif _WIN32
-            _aligned_free(large_block->data);
+            _aligned_free(large_block->data_);
 #endif
             large_block->data_ = nullptr;
         }

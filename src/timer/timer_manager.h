@@ -8,7 +8,7 @@
 
 class TimerManager {//Todo: TimerManager实现
 public:
-    using TimerSet = std::set<Timer::TimePoint, std::unique_ptr<Timer>>;
+    using TimerSet = std::set<TimePoint, std::unique_ptr<Timer>>;
 
 private:
     TimerSet timers;
