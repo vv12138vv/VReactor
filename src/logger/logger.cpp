@@ -7,7 +7,6 @@
 #include <cstring>
 #include <ctime>
 #include <memory>
-#include <process.h>
 #include <string>
 
 namespace ThreadInfo {
@@ -17,20 +16,32 @@ thread_local time_t t_last_second;
 };   // namespace ThreadInfo
 
 
-const std::unordered_map<Logger::Level, std::string> level_str{
-    {Logger::Level::Trace, "Trace"},
-    {Logger::Level::Debug, "Debug"},
-    {Logger::Level::Info, "Info"},
-    {Logger::Level::Warn, "Warn"},
-    {Logger::Level::Error, "Error"},
-    {Logger::Level::Fatal, "Fatal"},
+const std::vector<std::string> level_str{
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "WARN",
+    "ERROR",
+    "FATAL",
 };
 
-Logger::Impl::Impl(Logger::Level level, int save_errno, const std::string& file_name, int line)
-    : time_(std::chrono::time_point_cast<Duration>(BaseClock::now()))
-    , stream_()
-    , base_name_(file_name)
-    , line_(line) {}
+
+std::string Logger::simplify_file_name(const std::string& file_name) {
+    size_t last = file_name.rfind('/');
+    if (last == std::string::npos) {
+        return file_name;
+    }
+    return file_name.substr(last + 1);
+}
+
+
+Logger::Impl::Impl(const std::string& file_name, int line, int save_errno, Logger::Level level)
+    : base_name_(simplify_file_name(file_name))
+    , time_(std::chrono::time_point_cast<Duration>(BaseClock::now()))
+    , line_(line) {
+    format_time();
+    stream_ << level_str[log_level()] << ' ';
+}
 
 
 void Logger::Impl::format_time() {
@@ -50,33 +61,34 @@ void Logger::Impl::format_time() {
                   tm_time->tm_min,
                   tm_time->tm_sec);
     ThreadInfo::t_last_second = seconds;
-    char buf[32] = {0};
-    std::snprintf(buf, sizeof(buf), "%06d", micro_seconds);
+    char buf[8] = {0};
+    std::snprintf(buf, sizeof(buf), ":%04d", micro_seconds);
     stream_ << LogTemplate(ThreadInfo::t_time, strlen(time_format)) << LogTemplate(buf, strlen(buf));
+    stream_ << ' ';
 }
 
 void Logger::Impl::finish() {
-    stream_ << "-" << LogTemplate(base_name_.data_.data(), base_name_.len_) << ":" << std::to_string(line_) << "\n";
+    stream_ << " [" << base_name_ << ":" << std::to_string(line_) << "]\n";
 }
 
 
 Logger::Logger(const std::string& file_name, int line, Logger::Level level)
-    : impl_(std::make_unique<Impl>(level, 0, file_name, line)) {}
+    : impl_(std::make_unique<Impl>(file_name, line, 0, level)) {}
 
 
 Logger::~Logger() {
     impl_->finish();
-    const LogStream::SmallBuffer& buf(stream().buffer());
-    g_output(buf.data(),buf.size());
-    if(impl_->level_==Level::Fatal){
-        g_flush();
+    const auto& buff(stream().buffer());
+    g_output_(buff.data(), buff.size());
+    if (impl_->level_ == Level::Fatal) {
+        g_flush_();
         abort();
     }
 }
 
-// const char* get_err_msg(int save_errno) {
-//     return strerror_r(save_errno, ThreadInfo::t_errnobuf, sizeof(ThreadInfo::t_errnobuf));
-// }
+const char* get_err_msg(int save_errno) {
+    return strerror_r(save_errno, ThreadInfo::t_errnobuf, sizeof(ThreadInfo::t_errnobuf));
+}
 
 void Logger::default_output(const char* data, size_t len) {
     fwrite(data, len, sizeof(char), stdout);
@@ -87,17 +99,22 @@ void Logger::default_flush() {
 }
 
 void Logger::set_output(OutputFunc output_func) {
-    g_output = output_func;
+    g_output_ = output_func;
 }
 void Logger::set_flush(FlushFunc flush_func) {
-    g_flush = flush_func;
+    g_flush_ = flush_func;
 }
 
 //一些默认设置，默认输出到std::out
-Logger::OutputFunc Logger::g_output = default_output;
-Logger::FlushFunc Logger::g_flush = default_flush;
+Logger::OutputFunc Logger::g_output_ = default_output;
+Logger::FlushFunc Logger::g_flush_ = default_flush;
 Logger::Level g_level = Logger::Level::Info;
 
 void Logger::set_log_level(Logger::Level level) {
     g_level = level;
 }
+
+Logger::Level Logger::log_level() {
+    return g_level;
+}
+

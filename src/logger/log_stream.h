@@ -6,9 +6,8 @@
 const size_t kSmallBufferSize = 4000;
 const size_t kLargeBufferSize = 4000 * 1000;
 
-
+//日志输出
 class LogTemplate {
-
 public:
     const char* data_;
     size_t len_;
@@ -22,20 +21,18 @@ public:
     LogTemplate& operator=(const LogTemplate&) = delete;
 };
 
-
+//日志流，主要是为了通过<<操作进行输出
 class LogStream {
 public:
-    using SmallBuffer = LogBuffer<kSmallBufferSize>;
-
+    using StreamBuffer = LogBuffer<kSmallBufferSize>;
 private:
-    SmallBuffer buffer_;
-
+    StreamBuffer buffer_;
 public:
     LogStream() = default;
     LogStream(const LogStream& that) = delete;
     LogStream& operator=(const LogStream& that) = delete;
     void append(const char* p, int len) { buffer_.append(p, len); }
-    const SmallBuffer& buffer() const { return buffer_; }
+    const StreamBuffer& buffer() const { return buffer_; }
     void reset_buffer() { buffer_.reset(); }
 
     //以下是一些<<的重载
@@ -44,6 +41,7 @@ public:
     LogStream& operator<<(const char* str);
 
     LogStream& operator<<(const LogTemplate& log_template);
+    LogStream& operator<<(char ch);
 };
 
 
