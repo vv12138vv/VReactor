@@ -1,9 +1,9 @@
 #include "channel.h"
+#include "event_loop.h"
 #include "time_stamp.h"
 
 
-
-Channel::Channel(EventLoop& loop, int fd)
+Channel::Channel(Reactor& loop, int fd)
     : loop_(loop)
     , fd_(fd)
     , events_(Event::NoneEvent)
@@ -59,4 +59,8 @@ void Channel::handle_event_with_guard(TimePoint receive_time) {
             write_call_back_();
         }
     }
+}
+
+void Channel::remove_from_loop() {
+    loop_.remove_channel(this);
 }

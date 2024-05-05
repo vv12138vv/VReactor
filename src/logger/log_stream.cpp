@@ -25,3 +25,8 @@ LogStream& LogStream::operator<<(char ch) {
     buffer_.append(&ch, 1);
     return *this;
 }
+
+LogStream& LogStream::operator<<(const void* data) {
+    *this << static_cast<const char*>(data);
+    return *this;
+}

@@ -7,7 +7,7 @@
 #include <memory>
 #include <sys/epoll.h>
 
-class EventLoop;
+class Reactor;
 
 //Channel是对一个fd的抽象，包括设置监听事件，回调函数
 class Channel {
@@ -18,7 +18,7 @@ public:
 
 private:
     const int fd_;              //监听的fd
-    EventLoop& loop_;           //所属的事件循环
+    Reactor& loop_;           //所属的事件循环
     int events_;                //注册的感兴趣事件
     int real_events_;           // pool返回的实际发生的事件
     int idx_;                   //注册的idx
@@ -33,11 +33,11 @@ private:
 
     //更新epoll_ctl中的事件
     void update();
-    //从所属eventloop中删除该channel
-    void remove();
+    void handle_event_with_guard(TimePoint receive_time);
+
 
 public:
-    Channel(EventLoop& loop, int fd);
+    Channel(Reactor& loop, int fd);
     Channel()=delete;
     ~Channel();
     Channel& operator=(const Channel& that) = delete;
@@ -88,7 +88,8 @@ public:
     void tie(const std::shared_ptr<void>& obj);
     // fd收到通知后，处理事件的回调函数
     void handle_event(TimePoint receive_time);
-    void handle_event_with_guard(TimePoint receive_time);
+    //从所属eventloop中删除该channel
+    void remove_from_loop();
 };
 
 #endif

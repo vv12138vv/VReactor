@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-class EventLoop;
+class Reactor;
 
 class Poller {
 public:
@@ -14,13 +14,13 @@ public:
     using ChannelMap = std::unordered_map<int, Channel*>;
 
 private:
-    EventLoop& loop_;
+    Reactor& loop_;
 
 protected:
     ChannelMap channels_;
 
 public:
-    explicit Poller(EventLoop& loop);
+    explicit Poller(Reactor& loop);
     virtual ~Poller() = default;
     Poller(const Poller& that) = delete;
     Poller& operator=(const Poller& that) = delete;

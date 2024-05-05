@@ -30,9 +30,10 @@ public:
 private:
     StreamBuffer buffer_;
     //添加到流
-    void append(const char* p, int len) { 
-        assert(len<buffer_.available());
-        buffer_.append(p, len); }
+    void append(const char* p, int len) {
+        assert(len < buffer_.available());
+        buffer_.append(p, len);
+    }
 
 public:
     LogStream() = default;
@@ -46,6 +47,7 @@ public:
     LogStream& operator<<(const char* str);
     LogStream& operator<<(const LogTemplate& log_template);
     LogStream& operator<<(char ch);
+    LogStream& operator<<(const void* data);
 };
 
 
