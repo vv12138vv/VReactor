@@ -4,6 +4,7 @@
 #include "thread.h"
 #include "time_stamp.h"
 #include "timer_manager.h"
+#include"logger.h"
 #include <atomic>
 #include <cstdint>
 #include <functional>
@@ -16,7 +17,7 @@
 class Channel;
 class Poller;
 
-
+//作为poller和channel的桥梁
 class Reactor {
 public:
     using ChannelList = std::vector<Channel*>;
@@ -29,12 +30,12 @@ private:
     TimePoint poller_return_time_;          //发生事件的channels的返回时间
     std::unique_ptr<Poller> poller_;        // poller
     std::unique_ptr<TimerManager> timers_;
-    ChannelList active_channels_;
+    ChannelList active_channels_;   //活跃的channels
     Channel* cur_active_channel_;
     std::mutex mtx_;
     std::vector<Func> pending_funcs_;
     const std::thread::id belong_id_;
-    int wake_up_fd_;
+    int wake_up_fd_;//用于唤醒线程，线程间通信的方式
     std::unique_ptr<Channel> wake_up_channel_;
 
     void handle_read();
