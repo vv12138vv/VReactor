@@ -1,4 +1,5 @@
 #include "net_address.h"
+#include <cstring>
 #include <netinet/in.h>
 #include <strings.h>
 #include <sys/socket.h>
@@ -6,7 +7,7 @@
 
 
 NetAddress::NetAddress(uint16_t port, const std::string& ip) {
-    bzero(&address_, sizeof(address_));
+    ::memset(&address_, 0, sizeof(address_));
     address_.sin_family = AF_INET;
     address_.sin_port = htons(port);
     if (ip.empty()) {

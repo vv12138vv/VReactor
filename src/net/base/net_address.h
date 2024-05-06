@@ -12,7 +12,7 @@ private:
 
 public:
     NetAddress() = delete;
-    NetAddress(uint16_t port,const std::string& ip="");
+    NetAddress(uint16_t port, const std::string& ip = "");
     explicit NetAddress(const sockaddr_in& sock_addr)
         : address_(sock_addr) {}
 
@@ -20,6 +20,7 @@ public:
     std::string get_ip();
     std::string get_ip_port();
     void set_address(const sockaddr_in& sock_addr);
+    const sockaddr_in* get_sockaddr() const { return &address_; }
 };
 
 

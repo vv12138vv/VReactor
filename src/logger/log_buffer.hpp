@@ -33,7 +33,8 @@ public:
     size_t size() const { return static_cast<size_t>(cur_ - data_); }
     char* cur() { return cur_; }
     //缓冲区置0
-    void set_zero() { bzero(data_, sizeof(data_)); }
+    void set_zero() { memset(data_, 0, sizeof(data_)); }
+
     //剩余空间
     size_t available() const { return static_cast<size_t>(end() - cur_); }
     size_t capacity() const { return sizeof(data_); }
