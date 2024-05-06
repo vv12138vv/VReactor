@@ -1,7 +1,7 @@
 #include "poller.h"
 
 
-Poller::Poller(EventLoop& loop)
+Poller::Poller(Reactor& loop)
     : loop_(loop) {}
 
 //判断某个channel是否属于某个poller
