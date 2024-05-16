@@ -9,7 +9,7 @@
 
 class Reactor;
 
-//Channel是对一个fd的抽象，包括设置监听事件，回调函数
+// Channel是对一个fd的抽象，包括设置监听事件，回调函数
 class Channel {
 public:
     using EventCallBack = std::function<void()>;
@@ -18,7 +18,7 @@ public:
 
 private:
     const int fd_;              //监听的fd
-    Reactor& loop_;           //所属的事件循环
+    Reactor& loop_;             //所属的事件循环
     int events_;                //注册的感兴趣事件
     int real_events_;           // pool返回的实际发生的事件
     int idx_;                   //注册的idx
@@ -38,16 +38,16 @@ private:
 
 public:
     Channel(Reactor& loop, int fd);
-    Channel()=delete;
+    Channel() = delete;
     ~Channel();
     Channel& operator=(const Channel& that) = delete;
     Channel(const Channel& that) = delete;
 
     //设置一些回调函数
-    void set_read_call_back(ReadEventCallBack&& call_back) { read_call_back_ = std::move(call_back); }
-    void set_write_call_back(EventCallBack&& call_back) { write_call_back_ = std::move(call_back); }
-    void set_close_call_back(EventCallBack&& call_back) { close_call_back_ = std::move(call_back); }
-    void set_error_call_back(EventCallBack&& call_back) { error_call_back_ = std::move(call_back); }
+    void set_read_call_back(const ReadEventCallBack& call_back) { read_call_back_ = call_back; }
+    void set_write_call_back(const EventCallBack& call_back) { write_call_back_ = call_back; }
+    void set_close_call_back(const EventCallBack& call_back) { close_call_back_ = call_back; }
+    void set_error_call_back(const EventCallBack& call_back) { error_call_back_ = call_back; }
 
     //一些为了封装性的函数
     int get_fd() const { return fd_; }

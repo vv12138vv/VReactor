@@ -11,7 +11,7 @@ private:
     sockaddr_in address_;
 
 public:
-    NetAddress() = delete;
+    NetAddress() = default;
     NetAddress(uint16_t port, const std::string& ip = "");
     explicit NetAddress(const sockaddr_in& sock_addr)
         : address_(sock_addr) {}
