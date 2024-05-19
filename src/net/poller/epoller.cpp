@@ -10,7 +10,7 @@
 const size_t Epoller::kDefaultEventListSize = 16;
 
 
-Epoller::Epoller(Reactor& loop)
+Epoller::Epoller(EventLoop& loop)
     : Poller(loop)
     , epoll_fd_(epoll_create1(EPOLL_CLOEXEC))
     , events_(kDefaultEventListSize) {

@@ -1,7 +1,7 @@
 set(NET_SRC
     buffer.cpp
     channel.cpp
-    reactor.cpp
+    event_loop.cpp
     ./poller/poller.cpp
     ./poller/epoller.cpp
     ./base/net_address.cpp

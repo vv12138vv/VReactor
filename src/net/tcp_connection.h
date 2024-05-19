@@ -3,7 +3,7 @@
 
 #include "buffer.h"
 #include "net_address.h"
-#include "reactor.h"
+#include "event_loop.h"
 #include "time_stamp.h"
 #include <atomic>
 #include <cstdio>
@@ -12,7 +12,7 @@
 #include <netinet/tcp.h>
 #include <string>
 class Channel;
-class Reactor;
+class EventLoop;
 class Socket;
 class TcpConnection;
 
@@ -26,7 +26,7 @@ using OverLimitCallBack = std::function<void(const std::shared_ptr<TcpConnection
 class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 private:
     enum State { Connecting, Connected, Disconnected, Disconnecting };
-    Reactor& loop_;
+    EventLoop& loop_;
     const std::string name_;
     std::atomic<int> state_;   //连接状态
     bool reading_;
@@ -62,7 +62,7 @@ public:
     TcpConnection() = delete;
     TcpConnection(const TcpConnection& that) = delete;
     TcpConnection& operator=(const TcpConnection& that) = delete;
-    TcpConnection(Reactor& loop, const std::string& name, int sock_fd, const NetAddress& local_addr, const NetAddress& peer_addr);
+    TcpConnection(EventLoop& loop, const std::string& name, int sock_fd, const NetAddress& local_addr, const NetAddress& peer_addr);
     ~TcpConnection();
 
 

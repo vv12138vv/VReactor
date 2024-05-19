@@ -12,7 +12,7 @@
 
 
 
-class Reactor;
+class EventLoop;
 class Channel;
 
 class TimerManager {   // Todo: TimerManager实现
@@ -22,7 +22,7 @@ public:
 
 private:
     TimerSet timers_;
-    Reactor& loop_;
+    EventLoop& loop_;
     const int timer_fd_;
     std::atomic<bool> calling_expired_timers_;
     std::unique_ptr<Channel> channel_;
@@ -37,7 +37,7 @@ private:
 
 public:
     TimerManager() = delete;
-    explicit TimerManager(Reactor& loop);
+    explicit TimerManager(EventLoop& loop);
     ~TimerManager();
     void add_timer(TimerCallBack cb, TimePoint when, Duration interval);
 };

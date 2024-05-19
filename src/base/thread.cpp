@@ -21,13 +21,11 @@ Thread::Thread(const ThreadFunc& func, const std::string& name)
 
 void Thread::start() {
     assert(is_started_ == false);
-    std::unique_lock<std::mutex> locker(mtx_);
     thread_ = std::make_unique<std::thread>([this]() {
         is_started_ = true;
-        cdv_.notify_one();
         func_();
     });
-    cdv_.wait(locker, [this] { return is_started_; });
+    while(!is_started_);
 }
 
 

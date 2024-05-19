@@ -1,4 +1,4 @@
-#include "reactor.h"
+#include "event_loop.h"
 #include "channel.h"
 #include "epoller.h"
 #include "logger.h"
@@ -18,7 +18,7 @@
 const int kPoolTimeOutMs = 10000;
 
 
-thread_local Reactor* t_loop_in_this_thread = nullptr;
+thread_local EventLoop* t_loop_in_this_thread = nullptr;
 
 // eventfd是Linux特有的，用于事件通知的机制，evnetfd用于唤醒loop
 int create_event_fd() {
@@ -31,7 +31,7 @@ int create_event_fd() {
 
 
 
-Reactor::Reactor()
+EventLoop::EventLoop()
     : looping_(false)
     , quit_(false)
     , do_pending_func_(false)
@@ -50,11 +50,11 @@ Reactor::Reactor()
     } else {
         t_loop_in_this_thread = this;
     }
-    wake_up_channel_->set_read_call_back(std::bind(&Reactor::handle_read, this));
+    wake_up_channel_->set_read_call_back(std::bind(&EventLoop::handle_read, this));
     wake_up_channel_->enable_read();
 }
 
-Reactor::~Reactor() {
+EventLoop::~EventLoop() {
     wake_up_channel_->disable_all();
     wake_up_channel_->remove_from_loop();
     close(wake_up_fd_);
@@ -65,7 +65,7 @@ uint64_t thread_id_to_int(const std::thread::id& thread_id) {
     return *((std::thread::native_handle_type*)(&thread_id));
 }
 
-void Reactor::loop() {
+void EventLoop::loop() {
     assert(looping_ == false);
     assert(is_in_loop_thread());
     looping_ = true;
@@ -82,18 +82,18 @@ void Reactor::loop() {
     looping_ = false;
 }
 
-void Reactor::quit() {
+void EventLoop::quit() {
     quit_ = true;
     if (is_in_loop_thread()) {
         wake_up();
     }
 }
 
-bool Reactor::is_in_loop_thread() const {
+bool EventLoop::is_in_loop_thread() const {
     return belong_id_ == std::this_thread::get_id();
 }
 
-void Reactor::wake_up() {
+void EventLoop::wake_up() {
     uint64_t one = 1;
     ssize_t n = write(wake_up_fd_, &one, sizeof(one));
     if (n != sizeof(one)) {
@@ -101,7 +101,7 @@ void Reactor::wake_up() {
     }
 }
 
-void Reactor::handle_read() {
+void EventLoop::handle_read() {
     uint64_t one = 1;
     ssize_t n = read(wake_up_fd_, &one, sizeof(one));
     if (n != sizeof(one)) {
@@ -109,19 +109,19 @@ void Reactor::handle_read() {
     }
 }
 
-void Reactor::update_channel(Channel* channel) {
+void EventLoop::update_channel(Channel* channel) {
     poller_->update_channel(channel);
 }
 
-void Reactor::remove_channel(Channel* channel) {
+void EventLoop::remove_channel(Channel* channel) {
     poller_->remove_channel(channel);
 }
 
-bool Reactor::has_channel(Channel* channel) {
+bool EventLoop::has_channel(Channel* channel) {
     return poller_->has_channel(channel);
 }
 
-void Reactor::do_pending_funcs() {
+void EventLoop::do_pending_funcs() {
     std::vector<Func> funcs;
     do_pending_func_ = true;
     {
@@ -134,7 +134,7 @@ void Reactor::do_pending_funcs() {
     do_pending_func_ = false;
 }
 
-void Reactor::run_in_loop(Func cb) {
+void EventLoop::run_in_loop(Func cb) {
     if (is_in_loop_thread()) {
         cb();
     } else {
@@ -142,7 +142,7 @@ void Reactor::run_in_loop(Func cb) {
     }
 }
 
-void Reactor::queue_in_loop(Func cb) {
+void EventLoop::queue_in_loop(Func cb) {
     {
         std::unique_lock<std::mutex> locker(mtx_);
         pending_funcs_.push_back(std::move(cb));

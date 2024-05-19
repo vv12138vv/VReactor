@@ -3,7 +3,7 @@
 #include "time_stamp.h"
 
 
-Channel::Channel(Reactor& loop, int fd)
+Channel::Channel(EventLoop& loop, int fd)
     : loop_(loop)
     , fd_(fd)
     , events_(Event::NoneEvent)

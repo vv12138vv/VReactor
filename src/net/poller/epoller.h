@@ -25,7 +25,7 @@ private:
     void fill_channels(int evnets_cnt, ChannelList& active_channels);
 
 public:
-    explicit Epoller(Reactor& loop);
+    explicit Epoller(EventLoop& loop);
     ~Epoller() override;
     TimePoint poll(int timeout_ms, ChannelList& active_channels) override;
     void update_channel(Channel* channel) override;

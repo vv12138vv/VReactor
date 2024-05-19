@@ -22,7 +22,7 @@ int create_time_fd() {
 }
 
 
-TimerManager::TimerManager(Reactor& loop)
+TimerManager::TimerManager(EventLoop& loop)
     : loop_(loop)
     , timer_fd_(create_time_fd())
     , channel_(std::make_unique<Channel>(loop, timer_fd_))

@@ -2,8 +2,9 @@
 #include "channel.h"
 #include "logger.h"
 #include "net_address.h"
-#include "reactor.h"
+#include "event_loop.h"
 #include "socket.h"
+#include "timer_manager.h"
 #include <asm-generic/errno-base.h>
 #include <asm-generic/errno.h>
 #include <asm-generic/socket.h>
@@ -14,7 +15,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-TcpConnection::TcpConnection(Reactor& loop, const std::string& name, int sock_fd, const NetAddress& local_addr, const NetAddress& peer_addr)
+TcpConnection::TcpConnection(EventLoop& loop, const std::string& name, int sock_fd, const NetAddress& local_addr, const NetAddress& peer_addr)
     : loop_(loop)
     , name_(name)
     , state_(State::Connecting)

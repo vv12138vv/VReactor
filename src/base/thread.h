@@ -2,10 +2,8 @@
 #define THREAD_H
 
 #include <atomic>
-#include <condition_variable>
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <thread>
 
@@ -15,14 +13,11 @@ public:
 
 private:
     std::unique_ptr<std::thread> thread_;
-    bool is_started_;
-    bool is_joined_;
+    std::atomic<bool> is_started_;
+    std::atomic<bool> is_joined_;
     ThreadFunc func_;
     std::string name_;
     static std::atomic<int> count_;   //创建的线程数
-    //用于同步等待线程创建完毕
-    std::mutex mtx_;
-    std::condition_variable cdv_;
 
     //初始化线程名
     void set_name();

@@ -18,7 +18,7 @@ class Channel;
 class Poller;
 
 //作为poller和channel的桥梁
-class Reactor {
+class EventLoop {
 public:
     using ChannelList = std::vector<Channel*>;
     using Func = std::function<void()>;
@@ -41,10 +41,10 @@ private:
     void handle_read();
     void do_pending_funcs();
 public:
-    Reactor();
-    Reactor(const Reactor& that) = delete;
-    Reactor& operator=(const Reactor& that) = delete;
-    ~Reactor();
+    EventLoop();
+    EventLoop(const EventLoop& that) = delete;
+    EventLoop& operator=(const EventLoop& that) = delete;
+    ~EventLoop();
     //真正的工作循环，获得当前所有激活事件的channel，使用poller填充active_channels，然后处理每个激活的channel
     void loop();
     void quit();
