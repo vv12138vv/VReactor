@@ -2,8 +2,8 @@
 #define TCP_CONNECTION_H
 
 #include "buffer.h"
-#include "net_address.h"
 #include "event_loop.h"
+#include "net_address.h"
 #include "time_stamp.h"
 #include <atomic>
 #include <cstdio>
@@ -39,7 +39,7 @@ private:
     Buffer input_buffer_;    //接收缓冲区
     Buffer output_buffer_;   //发送缓冲区
 
-    size_t send_limit_;   // fa
+    size_t send_limit_;   // 发送限制
 
     ConnectionCallBack connection_cb_;
     CloseCallBack close_cb_;
@@ -70,6 +70,7 @@ public:
     std::string get_name() const { return name_; }
     NetAddress get_local_addr() const { return local_addr_; }
     NetAddress get_peer_addr() const { return peer_addr_; }
+    EventLoop& get_loop() const { return loop_; }
 
     void send(const std::string& data);
     void send(Buffer* data);
@@ -78,7 +79,7 @@ public:
     void set_connection_callback(const ConnectionCallBack& cb) { connection_cb_ = cb; }
     void set_close_callback(const CloseCallBack& cb) { close_cb_ = cb; }
     void set_write_callback(const WriteCallBack& cb) { write_cb_ = cb; }
-    void set_msg_callback(const ReadCallBack& cb) { read_cb_ = cb; }
+    void set_read_callback(const ReadCallBack& cb) { read_cb_ = cb; }
     void set_over_limit_callback(const OverLimitCallBack& cb) { over_limit_cb_ = cb; }
 
     void connection_established();

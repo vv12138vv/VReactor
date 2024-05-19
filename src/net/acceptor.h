@@ -5,16 +5,17 @@
 
 #include "channel.h"
 #include "net_address.h"
-#include "reactor.h"
+#include "event_loop.h"
+#include "noncopyable.h"
 #include "socket.h"
-class Reactor;
+class EventLoop;
 class NetAddress;
 
 using NewConnectionCallBack = std::function<void(int sock_fd, const NetAddress&)>;
 
-class Acceptor {
+class Acceptor:noncopyable {
 private:
-    Reactor& loop_;
+    EventLoop& loop_;
     Socket accept_socket_;
     Channel accept_channel_;
     NewConnectionCallBack new_connection_cb_;
@@ -25,7 +26,7 @@ public:
     Acceptor() = delete;
     Acceptor& operator=(const Acceptor& that) = delete;
     Acceptor(const Acceptor& that) = delete;
-    Acceptor(Reactor& loop, const NetAddress& listen_addr);
+    Acceptor(EventLoop& loop, const NetAddress& listen_addr);
     ~Acceptor();
     void set_cb(const NewConnectionCallBack& cb);
     bool is_listening() const { return listening_; }

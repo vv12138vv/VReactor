@@ -16,9 +16,9 @@ public:
     explicit NetAddress(const sockaddr_in& sock_addr)
         : address_(sock_addr) {}
 
-    uint16_t get_port();
-    std::string get_ip();
-    std::string get_ip_port();
+    uint16_t get_port() const;
+    std::string get_ip() const;
+    std::string get_ip_port() const;
     void set_address(const sockaddr_in& sock_addr);
     const sockaddr_in* get_sockaddr() const { return &address_; }
 };

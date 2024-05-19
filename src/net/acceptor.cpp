@@ -1,7 +1,7 @@
 #include "acceptor.h"
 #include "logger.h"
 #include "net_address.h"
-#include "reactor.h"
+#include "event_loop.h"
 #include <asm-generic/errno-base.h>
 #include <cerrno>
 #include <netinet/in.h>
@@ -19,7 +19,7 @@ int creat_non_block_sock() {
 }
 
 
-Acceptor::Acceptor(Reactor& loop, const NetAddress& listen_addr)
+Acceptor::Acceptor(EventLoop& loop, const NetAddress& listen_addr)
     : loop_(loop)
     , accept_socket_(creat_non_block_sock())
     , accept_channel_(loop, accept_socket_.get_sock_fd())

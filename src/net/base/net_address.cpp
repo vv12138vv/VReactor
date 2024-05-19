@@ -18,17 +18,17 @@ NetAddress::NetAddress(uint16_t port, const std::string& ip) {
 }
 
 
-std::string NetAddress::get_ip() {
+std::string NetAddress::get_ip() const {
     char buf[16] = {0};
     inet_ntop(AF_INET, &address_.sin_addr, buf, sizeof(buf));
     return buf;
 }
 
-uint16_t NetAddress::get_port() {
+uint16_t NetAddress::get_port() const {
     return ntohs(address_.sin_port);
 }
 
-std::string NetAddress::get_ip_port() {
+std::string NetAddress::get_ip_port() const {
     return get_ip() + ':' + std::to_string(get_port());
 }
 
